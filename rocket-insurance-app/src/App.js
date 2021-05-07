@@ -1,6 +1,6 @@
 import router from './router'
 
-function App({children}) {
+function App() {
   return <div className='App'>{router}</div>
 }
 

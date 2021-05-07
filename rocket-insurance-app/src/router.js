@@ -4,12 +4,12 @@ import {
     Route 
 } from 'react-router-dom';
 
-import LandingPage from './components/LandingPage'
+import RatingsInfo from './components/RatingsInfo'
 
 export default (
     <Router>
         <Switch>
-            <Route component={LandingPage} exact path='/' />
+            <Route component={RatingsInfo} exact path='/' />
         </Switch>
     </Router>
 );

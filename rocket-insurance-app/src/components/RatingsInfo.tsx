@@ -1,8 +1,9 @@
 import styled from '@emotion/styled'
+import axios from 'axios'
 
 import React, {useState} from 'react'
 
-export default function LandingPage() {
+export default function RatingsInfo() {
     const [firstName, updateFirstName] = useState('');
     const [lastName, updateLastName] = useState('');
     const [address, updateAddress] = useState({
@@ -32,9 +33,13 @@ export default function LandingPage() {
     }
 
     const handleSubmit = async () => {
-        const quote = await fetch('/api/getQuote', {
-            key: 'test',
-            foo: 'bar'
+        // validate
+        axios.post('/api/getQuote', {
+            firstName,
+            lastName,
+            address
+        }).then((res) => {
+            console.log(res)
         })
     }
 
@@ -91,7 +96,7 @@ export default function LandingPage() {
 const StyledHeader = styled.div`
     display: flex;
     justify-content: space-between;
-    background: #0033a0;
+    background: #00203FFF;
     width: 100%;
     height: 200px;
     color: white;
@@ -123,7 +128,8 @@ const StyledForm = styled.form`
     display: flex;
     flex-direction: column;
     padding: 25px;
-    background: lightblue;
+    background: #ADEFD1FF;
+    color: #00203FFF;
     border-radius: 10px;
     -moz-box-shadow:    inset 0 0 10px #000000;
     -webkit-box-shadow: inset 0 0 10px #000000;
@@ -135,6 +141,7 @@ const StyledForm = styled.form`
         label {
             display: inline-block;
             width: 120px;
+            font-weight: bold;
         }
     }
     input {
@@ -142,17 +149,22 @@ const StyledForm = styled.form`
         background: #F2F1F9;
         border: none;
         padding: 0.5rem;
+        border-radius: 10px;
     }
 
     .submit-button {
         margin: auto;
         margin-top: 20px;
         margin-bottom: 20px;
-        background: #4CAF50;
-        color: white;
+        background: #00203FFF;
+        color: #ADEFD1FF;
         font-size: 16px;
         height: 50px;
         width: 200px;
         cursor: pointer;
+
+        :hover {
+            border: 1px solid white;
+        }
     }
 `
