@@ -2,10 +2,14 @@ import styled from '@emotion/styled'
 import axios from 'axios'
 
 import React, {useState} from 'react'
+import {IProps} from '../common/types'
 
-export default function RatingsInfo() {
-    const [firstName, updateFirstName] = useState('');
-    const [lastName, updateLastName] = useState('');
+
+export default function RatingsInfo({
+    onQuoteReceived
+}: IProps) {
+    const [firstName, updateFirstName] = useState('')
+    const [lastName, updateLastName] = useState('')
     const [address, updateAddress] = useState({
         address1: '',
         address2: '',
@@ -13,6 +17,7 @@ export default function RatingsInfo() {
         region: '',
         zipcode: ''
     })
+    const [isFetching, updateIsFetching] = useState(false)
 
     const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = event.target
@@ -31,30 +36,37 @@ export default function RatingsInfo() {
         }
         updateAddress(newAddress)
     }
+    
+    const validateForm = () => {
+        const fields: string[] = [firstName, lastName, ...Object.values(address)]
 
-    const handleSubmit = async () => {
-        // validate
-        axios.post('/api/getQuote', {
-            firstName,
-            lastName,
-            address
-        }).then((res) => {
-            console.log(res)
-        })
+        // Verify no field is an empty string
+        return fields.filter(field => !field).length === 0
+    }
+
+    const handleSubmit =  () => {
+        const formIsValid = validateForm()
+        if (formIsValid) {
+            const {address1, address2, city, region, zipcode} = address
+
+            axios.post('https://fed-challenge-api.sure.now.sh/api/v1/quotes', {
+                first_name: firstName,
+                last_name: lastName,
+                address: {
+                    line_1: address1,
+                    line_2: address2,
+                    city: city,
+                    region: region,
+                    postal: zipcode
+                }
+            }).then((res) => {
+                onQuoteReceived(res.data.quote)
+            })
+        }
     }
 
     return(
         <>
-          <StyledHeader>
-              <div className='header-left'>
-                <h1>Rocket Insurance</h1>
-                <h1 className='darken-text'>Save up to 27% with a new policy!</h1>
-              </div>
-              <div className='header-right'>
-                <h2>Call 555-555-5555</h2>
-                <h2>To get a quote in 5 min</h2>
-              </div>
-          </StyledHeader>
           <StyledBody>
             <h2>We need a few pieces of information to get your quote!</h2>
             <StyledForm onSubmit={handleSubmit}>
@@ -86,32 +98,12 @@ export default function RatingsInfo() {
                     <label>Zip Code:</label>
                     <input name='zipcode' placeholder='12345' value={address.zipcode} onChange={handleAddressChange}></input>
                 </div>
-                <input className='submit-button' type='submit' value='Get Quote'></input>
+                <input className='submit-button' type='button' value='Get Quote' onClick={handleSubmit}></input>
             </StyledForm>
           </StyledBody>
         </>
     )
 }
-
-const StyledHeader = styled.div`
-    display: flex;
-    justify-content: space-between;
-    background: #00203FFF;
-    width: 100%;
-    height: 200px;
-    color: white;
-    font-family: Courier New;
-
-    .header-left {
-        padding-left: 20px;
-        .darken-text {
-            color: rgb(69, 188, 229);
-        }
-    }
-    .header-right {
-        padding-right: 20px;
-    }
-`
 
 const StyledBody = styled.div`
     display: flex;
@@ -119,8 +111,6 @@ const StyledBody = styled.div`
     align-items: center;
     justify-content: center;
     height: 700px;
-
-    // background-image: url('https://farmersinsurance.scene7.com/is/image/farmers/auto-landing-2000x714__10-9-2020?&2000,768,480');
 `
 
 const StyledForm = styled.form`
@@ -157,14 +147,16 @@ const StyledForm = styled.form`
         margin-top: 20px;
         margin-bottom: 20px;
         background: #00203FFF;
+        font-weight: bold;
         color: #ADEFD1FF;
         font-size: 16px;
         height: 50px;
         width: 200px;
         cursor: pointer;
+        border: 2px solid white;
 
         :hover {
-            border: 1px solid white;
+            border: 3px solid orange;
         }
     }
 `
