@@ -1,9 +1,10 @@
 import styled from '@emotion/styled'
+import axios from 'axios'
 
 import {useState} from 'react'
 import RatingsInfo from './RatingsInfo'
 import QuotePage from './QuotePage'
-import axios from 'axios'
+import RocketLogo from '../assets/RocketLogo.png'
 
 export default function LandingPage() {
     const [showQuote, updateShowQuote] = useState(false)
@@ -44,13 +45,10 @@ export default function LandingPage() {
     return(
         <>
           <StyledHeader>
-              <div className='header-left'>
-                <h1>Rocket Insurance</h1>
-                <h1 className='darken-text'>Save up to 27% with a new policy!</h1>
-              </div>
-              <div className='header-right'>
-                <h2>Call 555-555-5555</h2>
-                <h2>To get a quote in 5 min</h2>
+              <img src={RocketLogo}/>
+              <div className='info-group'>
+                <p>Call: 555-555-5555</p>
+                <p>Email: help@rocketinsurance.com</p>
               </div>
           </StyledHeader>
           {showQuote
@@ -63,13 +61,16 @@ export default function LandingPage() {
 
 const StyledHeader = styled.div`
     display: flex;
-    justify-content: space-between;
     background: #00203FFF;
     width: 100%;
-    height: 200px;
+    height: 180px;
     color: white;
     font-family: Courier New;
 
+    .info-group {
+        margin-left: 20px;
+        font-size: 18px;
+    }
     .header-left {
         padding-left: 20px;
         .darken-text {
