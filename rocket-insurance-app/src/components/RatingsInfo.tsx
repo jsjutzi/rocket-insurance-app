@@ -5,7 +5,8 @@ import {IRatingsInfoProps} from '../common/types'
 
 
 export default function RatingsInfo({
-    onQuoteRequested
+    onQuoteRequested,
+    isFetching
 }: IRatingsInfoProps) {
     const [firstName, updateFirstName] = useState('')
     const [lastName, updateLastName] = useState('')
@@ -16,6 +17,7 @@ export default function RatingsInfo({
         region: '',
         zipcode: ''
     })
+    const [isFormError, updateIsFormError] = useState(false)
 
     const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = event.target
@@ -24,6 +26,7 @@ export default function RatingsInfo({
         } else {
             updateLastName(value)
         }
+        checkError()
     }
 
     const handleAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,6 +36,13 @@ export default function RatingsInfo({
             [name]: value
         }
         updateAddress(newAddress)
+        checkError()
+    }
+
+    const checkError = () => {
+         if (isFormError && validateForm()) {
+            updateIsFormError(false)
+        }
     }
     
     const validateForm = () => {
@@ -40,7 +50,7 @@ export default function RatingsInfo({
         const filtered: string[] = fields.filter(field => !field)
         const noSecondAddress = filtered.length === 1 && !address.address2
 
-        // Verify no field is an empty string
+        // Verify no field is an empty stringd unless it's address line 2
         return filtered.length === 0 || noSecondAddress
     }
 
@@ -60,14 +70,21 @@ export default function RatingsInfo({
                     postal: zipcode
                 }
             })
+        } else {
+            updateIsFormError(true)
         }
     }
 
     return(
         <>
           <StyledBody>
-            <h2>We need a few pieces of information to get your quote!</h2>
-            <StyledForm onSubmit={handleSubmit}>
+            {!isFetching && <h2>We need a few pieces of information to get your quote!</h2>}
+            {isFormError && 
+            <StyledError className='error-message'>You must fill out all required fields to get a quote</StyledError>
+            }
+            {isFetching 
+            ? <span>Fetching Quote...</span>
+            : <StyledForm onSubmit={handleSubmit}>
                 <div className='label-input-group'>
                     <label>First Name:</label>
                     <input name='firstName' placeholder='John' value={firstName} onChange={handleNameChange}></input>
@@ -82,7 +99,7 @@ export default function RatingsInfo({
                 </div>
                 <div className='label-input-group'>
                     <label>Address Line 2:</label>
-                    <input name='address2' placeholder='Apt 1' value={address.address2} onChange={handleAddressChange}></input>
+                    <input name='address2' placeholder='Optional' value={address.address2} onChange={handleAddressChange}></input>
                 </div>
                 <div className='label-input-group'>
                     <label>City:</label>
@@ -98,6 +115,7 @@ export default function RatingsInfo({
                 </div>
                 <input className='submit-button' type='button' value='Get Quote' onClick={handleSubmit}></input>
             </StyledForm>
+            }
           </StyledBody>
         </>
     )
@@ -157,4 +175,9 @@ const StyledForm = styled.form`
             border: 3px solid orange;
         }
     }
+`
+
+const StyledError = styled.div`
+    color: #dc3545;
+   font-size: 20px;
 `

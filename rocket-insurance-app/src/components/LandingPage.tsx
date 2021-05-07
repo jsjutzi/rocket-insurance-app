@@ -8,11 +8,15 @@ import axios from 'axios'
 export default function LandingPage() {
     const [showQuote, updateShowQuote] = useState(false)
     const [quote, updateQuote] = useState({})
+    const [isFetching, updateIsFetching] = useState(false)
+
 
     const onQuoteRequested = (newQuote: Record<string, any>) => {
+        updateIsFetching(true)
         axios.post(`https://fed-challenge-api.sure.now.sh/api/v1/quotes`, newQuote)
         .then((res) => {
             updateQuote(res.data.quote)
+            updateIsFetching(false)
             updateShowQuote(true)
         })
         .catch(err => console.log(err))
@@ -21,6 +25,7 @@ export default function LandingPage() {
     const onQuoteUpdated = (newQuote: Record<string, any>) => {
         // make put request to update quote
         const {quoteId, rating_address, policy_holder, variable_selections} = newQuote
+        updateIsFetching(true)
         axios.put(`https://fed-challenge-api.sure.now.sh/api/v1/quotes/${quoteId}`, {
             quote: {
                 quoteId,
@@ -29,7 +34,10 @@ export default function LandingPage() {
                 variable_selections
             }
         })
-        .then(res => updateQuote(res.data.quote))
+        .then(res => {
+            updateQuote(res.data.quote)
+            updateIsFetching(false)
+        })
         .catch(err => console.log(err))
     }
 
@@ -46,8 +54,8 @@ export default function LandingPage() {
               </div>
           </StyledHeader>
           {showQuote
-          ? <QuotePage quote={quote} onQuoteUpdated={onQuoteUpdated}/>
-          : <RatingsInfo onQuoteRequested={onQuoteRequested} />
+          ? <QuotePage isFetching={isFetching} quote={quote} onQuoteUpdated={onQuoteUpdated}/>
+          : <RatingsInfo isFetching={isFetching} onQuoteRequested={onQuoteRequested} />
           }
         </>
     )

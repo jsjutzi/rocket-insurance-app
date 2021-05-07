@@ -1,11 +1,12 @@
 import styled from '@emotion/styled'
 
-import {useEffect, useState} from 'react'
+import {useState} from 'react'
 import {IQuotePageProps} from '../common/types'
 
 export default function QuotePage({
     onQuoteUpdated,
-    quote = {}
+    isFetching,
+    quote
 }: IQuotePageProps) {
     // Get options for dropdowns
     const variableOptions: Record<string, any> = quote.variable_options
@@ -19,7 +20,14 @@ export default function QuotePage({
     const currentPremium = quote.premium
 
     // Get updated quote anytime selected values changes
-    useEffect(() => {
+    const updateQuote = (event: any) => {
+        const {name, value} = event.target
+        if (name === 'deductible') {
+            updateSelectedDeductible(value)
+        } else {
+            updateSelectedCollision(value)
+        }
+
         const newQuote = {
             ...quote,
             variable_selections: {
@@ -29,15 +37,19 @@ export default function QuotePage({
         }
 
         onQuoteUpdated(newQuote)
-    }, [selectedCollision, selectedDeductible])
+    }
+
     return(
         <>
           <StyledBody>
+            {isFetching
+            ? <span>Getting Updated Quote...</span>
+            :<>
             <h2>Here's a custom quote just for you, {quote.policy_holder.first_name}!</h2>
             <StyledQuote>
                 <div className='quote-group'>
                     <label>Deductible: </label>
-                    <select className='select' value={selectedDeductible} onChange={(e) => updateSelectedDeductible(e.target.value)}>
+                    <select name='deductible' className='select' value={selectedDeductible} onChange={updateQuote}>
                         {deductibleOptions.map((option) => {
                             return <option key={option} value={option}>{option}</option>
                         })}
@@ -45,7 +57,7 @@ export default function QuotePage({
                 </div>
                 <div className='quote-group'>
                     <label>Collision: </label>
-                    <select className='select' value={selectedCollision} onChange={(e) => updateSelectedCollision(e.target.value)}>
+                    <select name='collision' className='select' value={selectedCollision} onChange={updateQuote}>
                         {collisionOptions.map((option) => {
                             return <option key={option} value={option}>{option}</option>
                         })}
@@ -56,6 +68,8 @@ export default function QuotePage({
                     <span>${currentPremium}</span>
                 </div>
             </StyledQuote>
+            </>
+            }
           </StyledBody>
         </>
     )
