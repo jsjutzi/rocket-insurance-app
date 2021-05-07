@@ -7,9 +7,9 @@ import {
 import LandingPage from './components/LandingPage'
 
 export default (
-    <Router>
+    <Router basename={process.env.PUBLIC_URL}>
         <Switch>
-            <Route component={LandingPage} exact path='/' />
+            <Route component={LandingPage} exact path='/rocket-insurance-app' />
         </Switch>
     </Router>
 );
