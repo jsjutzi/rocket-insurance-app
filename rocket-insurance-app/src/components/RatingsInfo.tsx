@@ -1,13 +1,12 @@
 import styled from '@emotion/styled'
-import axios from 'axios'
 
 import React, {useState} from 'react'
-import {IProps} from '../common/types'
+import {IRatingsInfoProps} from '../common/types'
 
 
 export default function RatingsInfo({
-    onQuoteReceived
-}: IProps) {
+    onQuoteRequested
+}: IRatingsInfoProps) {
     const [firstName, updateFirstName] = useState('')
     const [lastName, updateLastName] = useState('')
     const [address, updateAddress] = useState({
@@ -17,7 +16,6 @@ export default function RatingsInfo({
         region: '',
         zipcode: ''
     })
-    const [isFetching, updateIsFetching] = useState(false)
 
     const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = event.target
@@ -39,9 +37,11 @@ export default function RatingsInfo({
     
     const validateForm = () => {
         const fields: string[] = [firstName, lastName, ...Object.values(address)]
+        const filtered: string[] = fields.filter(field => !field)
+        const noSecondAddress = filtered.length === 1 && !address.address2
 
         // Verify no field is an empty string
-        return fields.filter(field => !field).length === 0
+        return filtered.length === 0 || noSecondAddress
     }
 
     const handleSubmit =  () => {
@@ -49,7 +49,7 @@ export default function RatingsInfo({
         if (formIsValid) {
             const {address1, address2, city, region, zipcode} = address
 
-            axios.post('https://fed-challenge-api.sure.now.sh/api/v1/quotes', {
+            onQuoteRequested({
                 first_name: firstName,
                 last_name: lastName,
                 address: {
@@ -59,8 +59,6 @@ export default function RatingsInfo({
                     region: region,
                     postal: zipcode
                 }
-            }).then((res) => {
-                onQuoteReceived(res.data.quote)
             })
         }
     }

@@ -1,21 +1,37 @@
 import styled from '@emotion/styled'
 
-import {useEffect, useState} from 'react'
+import {useState} from 'react'
 import RatingsInfo from './RatingsInfo'
 import QuotePage from './QuotePage'
+import axios from 'axios'
 
 export default function LandingPage() {
     const [showQuote, updateShowQuote] = useState(false)
     const [quote, updateQuote] = useState({})
 
-    const onQuoteReceived = (newQuote: Record<string, any>) => {
-        updateQuote(newQuote)
-        updateShowQuote(true)
+    const onQuoteRequested = (newQuote: Record<string, any>) => {
+        axios.post(`https://fed-challenge-api.sure.now.sh/api/v1/quotes`, newQuote)
+        .then((res) => {
+            updateQuote(res.data.quote)
+            updateShowQuote(true)
+        })
+        .catch(err => console.log(err))
     }
 
-    useEffect(() => {
-        console.log(quote)
-    }, [quote])
+    const onQuoteUpdated = (newQuote: Record<string, any>) => {
+        // make put request to update quote
+        const {quoteId, rating_address, policy_holder, variable_selections} = newQuote
+        axios.put(`https://fed-challenge-api.sure.now.sh/api/v1/quotes/${quoteId}`, {
+            quote: {
+                quoteId,
+                rating_address,
+                policy_holder,
+                variable_selections
+            }
+        })
+        .then(res => updateQuote(res.data.quote))
+        .catch(err => console.log(err))
+    }
 
     return(
         <>
@@ -30,8 +46,8 @@ export default function LandingPage() {
               </div>
           </StyledHeader>
           {showQuote
-          ? <QuotePage quote={quote} onQuoteReceived={onQuoteReceived}/>
-          : <RatingsInfo onQuoteReceived={onQuoteReceived} />
+          ? <QuotePage quote={quote} onQuoteUpdated={onQuoteUpdated}/>
+          : <RatingsInfo onQuoteRequested={onQuoteRequested} />
           }
         </>
     )
