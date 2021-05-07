@@ -1,7 +1,7 @@
-import router from './router'
+import LandingPage from './components/LandingPage'
 
 function App() {
-  return <div className='App'>{router}</div>
+  return <div className='App'><LandingPage/></div>
 }
 
 export default App;
