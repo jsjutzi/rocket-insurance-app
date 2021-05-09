@@ -45,7 +45,7 @@ export default function LandingPage() {
     return(
         <>
           <StyledHeader>
-              <img src={RocketLogo}/>
+              <img src={RocketLogo} alt='rocket'/>
               <div className='info-group'>
                 <p>Call: 555-555-5555</p>
                 <p>Email: help@rocketinsurance.com</p>

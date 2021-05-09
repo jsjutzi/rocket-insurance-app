@@ -1,6 +1,6 @@
 import styled from '@emotion/styled'
 
-import React, {useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {IRatingsInfoProps} from '../common/types'
 
 
@@ -26,7 +26,6 @@ export default function RatingsInfo({
         } else {
             updateLastName(value)
         }
-        checkError()
     }
 
     const handleAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,23 +35,26 @@ export default function RatingsInfo({
             [name]: value
         }
         updateAddress(newAddress)
-        checkError()
     }
 
-    const checkError = () => {
-         if (isFormError && validateForm()) {
-            updateIsFormError(false)
-        }
-    }
-    
-    const validateForm = () => {
+    const validateForm = useCallback(() => {
         const fields: string[] = [firstName, lastName, ...Object.values(address)]
         const filtered: string[] = fields.filter(field => !field)
         const noSecondAddress = filtered.length === 1 && !address.address2
 
         // Verify no field is an empty stringd unless it's address line 2
         return filtered.length === 0 || noSecondAddress
-    }
+    }, [firstName, lastName, address])
+
+    const checkError = useCallback(() => {
+         if (isFormError && validateForm()) {
+            updateIsFormError(false)
+        }
+    }, [isFormError, validateForm])
+
+    useEffect(() => {
+        checkError()
+    }, [firstName, lastName, address, checkError])
 
     const handleSubmit =  () => {
         const formIsValid = validateForm()
